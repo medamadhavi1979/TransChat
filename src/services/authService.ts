@@ -4,9 +4,10 @@ import {
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
   User as FirebaseUser,
-  deleteUser
+  deleteUser,
+  updateProfile
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 import { User } from '../types';
 
@@ -62,4 +63,35 @@ export const getCurrentUser = (): FirebaseUser | null => {
 
 export const resetPassword = async (email: string): Promise<void> => {
   await sendPasswordResetEmail(auth, email);
+};
+
+export const updateDisplayName = async (displayName: string): Promise<void> => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('No user logged in');
+
+  await updateProfile(user, { displayName });
+  await setDoc(
+    doc(db, 'users', user.uid),
+    {
+      displayName,
+      profileUpdatedAt: Timestamp.now(),
+    },
+    { merge: true }
+  );
+};
+
+export const deleteAccount = async (): Promise<void> => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('No user logged in');
+
+  await setDoc(
+    doc(db, 'users', user.uid),
+    {
+      status: 'deleted',
+      deletedAt: Timestamp.now(),
+    },
+    { merge: true }
+  );
+
+  await deleteUser(user);
 };

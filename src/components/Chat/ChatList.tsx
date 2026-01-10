@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { LogOut, Moon, Sun, Plus } from 'lucide-react';
+import { Moon, Sun, Plus } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getUserChats, getUser, getAllUsers, createOrGetChat, getUnreadCount } from '../../services/chatService';
-import { signOut } from '../../services/authService';
 import { Chat, ChatWithUser, User } from '../../types';
+import { SettingsMenu } from './SettingsMenu';
+import { ProfileModal } from './ProfileModal';
 
 interface ChatListProps {
   onSelectChat: (chat: ChatWithUser) => void;
@@ -23,6 +24,7 @@ export const ChatList: React.FC<ChatListProps> = ({
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [creatingChat, setCreatingChat] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -65,13 +67,6 @@ export const ChatList: React.FC<ChatListProps> = ({
     return () => unsubscribe();
   }, [currentUser]);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  };
 
   const handleStartChat = async (user: User) => {
     if (!currentUser || creatingChat) return;
@@ -136,13 +131,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           >
             <Plus size={20} />
           </button>
-          <button
-            onClick={handleSignOut}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
-            title="Sign out"
-          >
-            <LogOut size={20} />
-          </button>
+          <SettingsMenu onProfileClick={() => setShowProfileModal(true)} isDark={isDark} />
         </div>
       </div>
 
@@ -223,6 +212,12 @@ export const ChatList: React.FC<ChatListProps> = ({
           ))
         )}
       </div>
+
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        isDark={isDark}
+      />
     </div>
   );
 };

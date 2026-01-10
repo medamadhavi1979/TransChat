@@ -10,6 +10,7 @@ interface ChatHeaderProps {
   translationEnabled: boolean;
   targetLanguage?: string;
   onLanguageChange?: (language: string) => void;
+  onContactClick?: () => void;
 }
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -19,15 +20,22 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   translationEnabled,
   targetLanguage = 'en',
   onLanguageChange,
+  onContactClick,
 }) => {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const currentLanguage = SUPPORTED_LANGUAGES.find((lang) => lang.code === targetLanguage) || SUPPORTED_LANGUAGES[0];
 
   return (
     <div className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
-      <div className="flex items-center">
+      <button
+        onClick={onContactClick}
+        className="flex items-center flex-1 hover:opacity-75 transition-opacity"
+      >
         <button
-          onClick={onBack}
+          onClick={(e) => {
+            e.stopPropagation();
+            onBack();
+          }}
           className="mr-3 md:hidden text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
         >
           <ArrowLeft size={24} />
@@ -39,7 +47,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           <h3 className="font-semibold text-gray-900 dark:text-white">{user.displayName}</h3>
           <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
         </div>
-      </div>
+      </button>
 
       <div className="flex items-center gap-2">
         <button

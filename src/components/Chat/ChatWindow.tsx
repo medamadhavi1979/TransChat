@@ -3,7 +3,9 @@ import { ChatHeader } from './ChatHeader';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
 import { TranslationSettings } from './TranslationSettings';
+import { ContactProfileModal } from './ContactProfileModal';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { User, Message } from '../../types';
 import {
   getChatMessages,
@@ -37,12 +39,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   targetLanguage: initialTargetLanguage,
 }) => {
   const { currentUser } = useAuth();
+  const { isDark } = useTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const [translationEnabled, setTranslationEnabled] = useState(initialTranslationEnabled);
   const [targetLanguage, setTargetLanguage] = useState(initialTargetLanguage);
   const [showSettings, setShowSettings] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [showContactProfile, setShowContactProfile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -209,6 +213,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         translationEnabled={translationEnabled}
         targetLanguage={targetLanguage}
         onLanguageChange={handleLanguageChange}
+        onContactClick={() => setShowContactProfile(true)}
       />
 
       <div className="flex-1 overflow-y-auto py-4">
@@ -265,6 +270,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           onClose={() => setShowSettings(false)}
         />
       )}
+
+      <ContactProfileModal
+        isOpen={showContactProfile}
+        onClose={() => setShowContactProfile(false)}
+        contact={otherUser}
+        chatId={chatId}
+        isDark={isDark}
+      />
     </div>
   );
 };

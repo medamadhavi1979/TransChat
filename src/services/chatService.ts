@@ -10,6 +10,7 @@ import {
   onSnapshot,
   Timestamp,
   addDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Chat, Message, User } from '../types';
@@ -377,4 +378,21 @@ export const canSendMessage = async (
   }
 
   return { allowed: true };
+};
+
+export const clearChatHistory = async (chatId: string, userId: string): Promise<void> => {
+  const messagesRef = collection(db, 'messages');
+  const q = query(
+    messagesRef,
+    where('chatId', '==', chatId)
+  );
+
+  const querySnapshot = await getDocs(q);
+  const promises: Promise<void>[] = [];
+
+  querySnapshot.forEach((doc) => {
+    promises.push(deleteDoc(doc.ref));
+  });
+
+  await Promise.all(promises);
 };
