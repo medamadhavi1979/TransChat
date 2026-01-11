@@ -4,6 +4,7 @@ import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
 import { TranslationSettings } from './TranslationSettings';
 import { ContactProfileModal } from './ContactProfileModal';
+import { DateSeparator } from './DateSeparator';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { User, Message } from '../../types';
@@ -204,6 +205,31 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   };
 
+  const isSameDay = (date1: Date, date2: Date) => {
+    return date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate();
+  };
+
+  const getMessagesWithDateSeparators = () => {
+    const messagesWithSeparators: Array<{ type: 'message' | 'date'; data: Message | Date }> = [];
+
+    messages.forEach((message, index) => {
+      if (index === 0) {
+        messagesWithSeparators.push({ type: 'date', data: message.timestamp });
+        messagesWithSeparators.push({ type: 'message', data: message });
+      } else {
+        const previousMessage = messages[index - 1];
+        if (!isSameDay(previousMessage.timestamp, message.timestamp)) {
+          messagesWithSeparators.push({ type: 'date', data: message.timestamp });
+        }
+        messagesWithSeparators.push({ type: 'message', data: message });
+      }
+    });
+
+    return messagesWithSeparators;
+  };
+
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
       <ChatHeader
@@ -223,16 +249,23 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           </div>
         ) : (
           <>
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                sender={message.senderId === currentUser?.uid ? currentUser : otherUser}
-                onDeleteLocal={handleDeleteLocalMessage}
-                onDeleteForEveryone={handleDeleteMessageForEveryone}
-                onReply={handleReplyToMessage}
-              />
-            ))}
+            {getMessagesWithDateSeparators().map((item, index) => {
+              if (item.type === 'date') {
+                return <DateSeparator key={`date-${index}`} date={item.data as Date} />;
+              } else {
+                const message = item.data as Message;
+                return (
+                  <MessageBubble
+                    key={message.id}
+                    message={message}
+                    sender={message.senderId === currentUser?.uid ? currentUser : otherUser}
+                    onDeleteLocal={handleDeleteLocalMessage}
+                    onDeleteForEveryone={handleDeleteMessageForEveryone}
+                    onReply={handleReplyToMessage}
+                  />
+                );
+              }
+            })}
             <div ref={messagesEndRef} />
           </>
         )}
