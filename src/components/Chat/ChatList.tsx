@@ -40,9 +40,10 @@ export const ChatList: React.FC<ChatListProps> = ({
     };
 
     fetchUsers();
+    setLoading(false);
 
-    const unsubscribe = getUserChats(currentUser.uid, async (fetchedChats: Chat[]) => {
-      const chatsWithUsers = await Promise.all(
+    const unsubscribe = getUserChats(currentUser.uid, (fetchedChats: Chat[]) => {
+      Promise.all(
         fetchedChats.map(async (chat) => {
           const otherUserId = chat.participants.find((id) => id !== currentUser.uid);
           if (!otherUserId) return null;
@@ -58,10 +59,9 @@ export const ChatList: React.FC<ChatListProps> = ({
             unreadCount,
           } as ChatWithUser;
         })
-      );
-
-      setChats(chatsWithUsers.filter((chat): chat is ChatWithUser => chat !== null));
-      setLoading(false);
+      ).then((chatsWithUsers) => {
+        setChats(chatsWithUsers.filter((chat): chat is ChatWithUser => chat !== null));
+      });
     });
 
     return () => unsubscribe();

@@ -3,16 +3,25 @@ import { ChatList } from './ChatList';
 import { ChatWindow } from './ChatWindow';
 import { NewChatModal } from './NewChatModal';
 import { useAuth } from '../../contexts/AuthContext';
+import { useChatTranslation } from '../../contexts/ChatTranslationContext';
 import { ChatWithUser, User } from '../../types';
 import { MessageCircle } from 'lucide-react';
 
 export const Chat: React.FC = () => {
   const { currentUser } = useAuth();
+  const { getSettings, setSettings } = useChatTranslation();
   const [selectedChat, setSelectedChat] = useState<ChatWithUser | null>(null);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
 
   const handleSelectChat = (chat: ChatWithUser) => {
     setSelectedChat(chat);
+    const stored = chat.translationSettings[currentUser!.uid];
+    if (stored) {
+      setSettings(chat.id, {
+        enabled: stored.enabled,
+        targetLanguage: stored.targetLanguage,
+      });
+    }
   };
 
   const handleNewChat = () => {
@@ -38,12 +47,22 @@ export const Chat: React.FC = () => {
       otherUser,
     };
     setSelectedChat(newChat);
+    setSettings(chatId, { enabled: false, targetLanguage: 'en' });
     setShowNewChatModal(false);
   };
 
   const handleBack = () => {
     setSelectedChat(null);
   };
+
+  const getChatSettings = () => {
+    if (!selectedChat || !currentUser) {
+      return { enabled: false, targetLanguage: 'en' };
+    }
+    return getSettings(selectedChat.id);
+  };
+
+  const settings = getChatSettings();
 
   return (
     <div className="h-screen flex">
@@ -61,12 +80,8 @@ export const Chat: React.FC = () => {
             chatId={selectedChat.id}
             otherUser={selectedChat.otherUser}
             onBack={handleBack}
-            translationEnabled={
-              selectedChat.translationSettings[currentUser!.uid]?.enabled || false
-            }
-            targetLanguage={
-              selectedChat.translationSettings[currentUser!.uid]?.targetLanguage || 'en'
-            }
+            translationEnabled={settings.enabled}
+            targetLanguage={settings.targetLanguage}
           />
         ) : (
           <div className="h-full flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-400 dark:text-gray-500">

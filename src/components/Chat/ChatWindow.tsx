@@ -7,6 +7,7 @@ import { ContactProfileModal } from './ContactProfileModal';
 import { DateSeparator } from './DateSeparator';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useChatTranslation } from '../../contexts/ChatTranslationContext';
 import { User, Message } from '../../types';
 import {
   getChatMessages,
@@ -41,6 +42,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 }) => {
   const { currentUser } = useAuth();
   const { isDark } = useTheme();
+  const { getSettings, setSettings } = useChatTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [translationEnabled, setTranslationEnabled] = useState(initialTranslationEnabled);
   const [targetLanguage, setTargetLanguage] = useState(initialTargetLanguage);
@@ -51,6 +53,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const settings = getSettings(chatId);
+    setTranslationEnabled(settings.enabled);
+    setTargetLanguage(settings.targetLanguage);
+  }, [chatId, getSettings]);
+
+  useEffect(() => {
     if (!chatId) return;
 
     const unsubscribe = getChatMessages(chatId, async (fetchedMessages) => {
@@ -59,20 +67,22 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         (msg) => !deletedLocally.has(msg.id)
       );
 
+      let processedMessages = filteredMessages;
+
       if (translationEnabled && currentUser) {
         const translatedMessages = await Promise.all(
           filteredMessages.map(async (msg) => {
-            if (msg.senderId !== currentUser.uid && msg.originalText && !msg.translatedText) {
+            if (msg.senderId !== currentUser.uid && msg.originalText) {
               const translated = await translateText(msg.originalText, targetLanguage);
               return { ...msg, translatedText: translated };
             }
             return msg;
           })
         );
-        setMessages(translatedMessages);
-      } else {
-        setMessages(filteredMessages.map(msg => ({ ...msg, translatedText: '' })));
+        processedMessages = translatedMessages;
       }
+
+      setMessages(processedMessages);
     });
 
     return () => unsubscribe();
@@ -171,6 +181,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
     setTranslationEnabled(enabled);
     setTargetLanguage(language);
+    setSettings(chatId, { enabled, targetLanguage: language });
     await updateTranslationSettings(chatId, currentUser.uid, enabled, language);
     setShowSettings(false);
   };
@@ -179,6 +190,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     if (!currentUser) return;
 
     setTargetLanguage(language);
+    setSettings(chatId, { enabled: translationEnabled, targetLanguage: language });
     await updateTranslationSettings(chatId, currentUser.uid, translationEnabled, language);
   };
 
