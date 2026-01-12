@@ -159,17 +159,15 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             {formatTime(message.timestamp)}
           </p>
 
-          {isSent && (
-            <button
-              onClick={() => setShowMenu(!showMenu)}
-              className="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-            >
-              <MoreVertical size={16} className="text-gray-600 dark:text-gray-400" />
-            </button>
-          )}
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+          >
+            <MoreVertical size={16} className="text-gray-600 dark:text-gray-400" />
+          </button>
         </div>
 
-        {isSent && showMenu && (
+        {showMenu && (
           <div className="absolute right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10">
             <button
               onClick={() => {
@@ -181,26 +179,28 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               <Trash2 size={16} />
               Delete locally
             </button>
-            <button
-              onClick={() => {
-                onDeleteForEveryone?.(message.id);
-                setShowMenu(false);
-              }}
-              disabled={!canDeleteEverywhere}
-              className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
-                canDeleteEverywhere
-                  ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-              }`}
-            >
-              <Trash2 size={16} />
-              <span>
-                Delete for everyone
-                {canDeleteEverywhere && timeRemaining && (
-                  <span className="text-xs ml-1 opacity-70">({timeRemaining})</span>
-                )}
-              </span>
-            </button>
+            {isSent && (
+              <button
+                onClick={() => {
+                  onDeleteForEveryone?.(message.id);
+                  setShowMenu(false);
+                }}
+                disabled={!canDeleteEverywhere}
+                className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${
+                  canDeleteEverywhere
+                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                }`}
+              >
+                <Trash2 size={16} />
+                <span>
+                  Delete for everyone
+                  {canDeleteEverywhere && timeRemaining && (
+                    <span className="text-xs ml-1 opacity-70">({timeRemaining})</span>
+                  )}
+                </span>
+              </button>
+            )}
           </div>
         )}
       </div>

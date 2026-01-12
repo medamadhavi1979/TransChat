@@ -95,40 +95,38 @@ export const MessageActionMenu: React.FC<MessageActionMenuProps> = ({
           Share
         </button>
 
-        {isSender && (
-          <>
-            <button
-              onClick={() => {
-                onDeleteLocal();
-                onClose();
-              }}
-              className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-200 dark:border-gray-700"
-            >
-              <Trash2 size={16} />
-              Delete locally
-            </button>
+        <button
+          onClick={() => {
+            onDeleteLocal();
+            onClose();
+          }}
+          className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-200 dark:border-gray-700"
+        >
+          <Trash2 size={16} />
+          Delete locally
+        </button>
 
-            <button
-              onClick={() => {
-                onDeleteForEveryone();
-                onClose();
-              }}
-              disabled={!canDeleteEverywhere}
-              className={`w-full text-left px-4 py-3 text-sm flex items-center gap-3 ${
-                canDeleteEverywhere
-                  ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
-              }`}
-            >
-              <Trash2 size={16} />
-              <span>
-                Delete for everyone
-                {canDeleteEverywhere && timeRemaining && (
-                  <span className="text-xs ml-1 opacity-70">({timeRemaining})</span>
-                )}
-              </span>
-            </button>
-          </>
+        {isSender && (
+          <button
+            onClick={() => {
+              onDeleteForEveryone();
+              onClose();
+            }}
+            disabled={!canDeleteEverywhere}
+            className={`w-full text-left px-4 py-3 text-sm flex items-center gap-3 ${
+              canDeleteEverywhere
+                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                : 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+            }`}
+          >
+            <Trash2 size={16} />
+            <span>
+              Delete for everyone
+              {canDeleteEverywhere && timeRemaining && (
+                <span className="text-xs ml-1 opacity-70">({timeRemaining})</span>
+              )}
+            </span>
+          </button>
         )}
       </div>
     </>
