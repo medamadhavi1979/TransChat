@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { X, Trash2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { updateDisplayName, deleteAccount } from '../../services/authService';
-import { isValidDisplayName, getDisplayNameError } from '../../utils/validationUtils';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -21,8 +20,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, isD
 
   const handleSaveName = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValidDisplayName(displayName)) {
-      setError(getDisplayNameError());
+    if (!displayName.trim()) {
+      setError('Display name cannot be empty');
       return;
     }
 

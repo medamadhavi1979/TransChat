@@ -25,10 +25,7 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({
         const filteredUsers = allUsers.filter(
           (user) => user.uid !== currentUser?.uid
         );
-        const sortedUsers = filteredUsers.sort((a, b) =>
-          a.displayName.localeCompare(b.displayName)
-        );
-        setUsers(sortedUsers);
+        setUsers(filteredUsers);
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {
