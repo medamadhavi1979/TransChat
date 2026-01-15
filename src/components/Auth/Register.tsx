@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { signUp } from '../../services/authService';
 import { MessageCircle, Eye, EyeOff } from 'lucide-react';
+import { isValidDisplayName, getDisplayNameError } from '../../utils/validationUtils';
 
 interface RegisterProps {
   onToggleMode: () => void;
@@ -18,6 +19,12 @@ export const Register: React.FC<RegisterProps> = ({ onToggleMode }) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    if (!isValidDisplayName(displayName)) {
+      setError(getDisplayNameError());
+      setLoading(false);
+      return;
+    }
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters');

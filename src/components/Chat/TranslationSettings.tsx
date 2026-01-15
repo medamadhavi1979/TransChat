@@ -40,7 +40,7 @@ export const TranslationSettings: React.FC<TranslationSettingsProps> = ({
           </p>
 
           <div className="max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-            {SUPPORTED_LANGUAGES.map((lang) => (
+            {[...SUPPORTED_LANGUAGES].sort((a, b) => a.name.localeCompare(b.name)).map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => setSelectedLanguage(lang.code)}
